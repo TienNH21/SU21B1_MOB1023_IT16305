@@ -5,6 +5,11 @@
  */
 package buoi3_swing;
 
+import buoi1.Nguoi;
+import buoi1.QuanLyInterface;
+import buoi1.QuanLyNguoi;
+import buoi1.SinhVien;
+import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -13,23 +18,15 @@ import javax.swing.table.DefaultTableModel;
  * @author tiennh
  */
 public class Demo2_Control extends javax.swing.JFrame {
+    private QuanLyInterface qlsv;
 
     /**
      * Creates new form Demo2_Control
      */
     public Demo2_Control() {
         initComponents();
-
-        String[] sv = new String[] {
-            "PH12345",
-            "Nguyễn Văn A",
-            "Nam",
-            "UDPM",
-            "HN"
-        };
         
-        DefaultTableModel dtm = (DefaultTableModel) this.tblSv.getModel();
-        dtm.addRow(sv);
+        this.qlsv = new QuanLyNguoi();
     }
 
     /**
@@ -277,7 +274,22 @@ public class Demo2_Control extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLoginActionPerformed
 
     private void btnTaoDoiTuongAoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTaoDoiTuongAoActionPerformed
-        // TODO add your handling code here:
+        DefaultTableModel dtm = (DefaultTableModel) this.tblSv.getModel();
+        this.qlsv.taoDoiTuongAo();
+        ArrayList<Nguoi> ds = this.qlsv.xuatDanhSach();
+        for (int i = 0; i < ds.size(); i++) {
+            SinhVien sv = (SinhVien) ds.get(i);
+
+            String[] rowData = new String[] {
+                sv.getMaSV(),
+                sv.getHoTen(),
+                sv.getGioiTinh() == 1 ? "Nam" : "Nữ",
+                sv.getChuyenNganh(),
+                sv.getQueQuan()
+            };
+            
+            dtm.addRow(rowData);
+        }
     }//GEN-LAST:event_btnTaoDoiTuongAoActionPerformed
 
     /**
