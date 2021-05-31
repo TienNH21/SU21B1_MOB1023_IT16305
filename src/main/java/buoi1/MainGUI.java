@@ -6,6 +6,7 @@
 package buoi1;
 
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -115,6 +116,11 @@ public class MainGUI extends javax.swing.JFrame {
                 return types [columnIndex];
             }
         });
+        tblSV.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblSVMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tblSV);
 
         btnThem.setText("Thêm");
@@ -132,8 +138,18 @@ public class MainGUI extends javax.swing.JFrame {
         });
 
         btnCapNhat.setText("Sửa");
+        btnCapNhat.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCapNhatActionPerformed(evt);
+            }
+        });
 
         btnXoa.setText("Xóa");
+        btnXoa.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnXoaActionPerformed(evt);
+            }
+        });
 
         btnXoaForm.setText("Xóa form");
         btnXoaForm.addActionListener(new java.awt.event.ActionListener() {
@@ -262,27 +278,116 @@ public class MainGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_btnTaoSvAoActionPerformed
 
     private void btnThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThemActionPerformed
-        String hoten = this.txtHoTen.getText();
-        String maSV = this.txtMaSV.getText();
-        String queQuan = this.txtQueQuan.getText();
-        String chuyenNganh = this.cbbChuyenNganh.getSelectedItem().toString();
-        
-        boolean gioiTinhNam = this.radioGtNam.isSelected();
-        
-        int gioiTinh = (gioiTinhNam == true) ? 1 : 0 ;
-//        if (gioiTinhNam == true) {
-//            gioiTinh = 1;
-//        } else {
-//            gioiTinh = 0;
-//        }
+        SinhVien sv = this.docForm();
+        if (sv == null) {
+            return ;
+        }
 
-        SinhVien sv = new SinhVien(maSV, chuyenNganh, hoten, gioiTinh, queQuan);
         this.qlsv.them(sv);
         
         this.hienThiJTable();
         this.uiMacDinh();
     }//GEN-LAST:event_btnThemActionPerformed
 
+    private void btnCapNhatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCapNhatActionPerformed
+        int row = this.tblSV.getSelectedRow();
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this, "Chọn 1 dòng trên JTable",
+                "Lỗi", JOptionPane.ERROR_MESSAGE);
+            
+            return ;
+        }
+        
+        SinhVien sv = this.docForm();
+        if (sv == null) {
+            return ;
+        }
+
+        // cập nhật đối tượng sinh viên vào ArrayList
+        ArrayList<Nguoi> listSV = this.qlsv.xuatDanhSach();
+        listSV.set(row, sv);
+        
+        this.hienThiJTable();
+        this.uiMacDinh();
+    }//GEN-LAST:event_btnCapNhatActionPerformed
+
+    private void tblSVMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblSVMouseClicked
+        int viTri = this.tblSV.getSelectedRow();
+
+        if (viTri == -1) {
+            return ;
+        }
+
+        DefaultTableModel dtm = (DefaultTableModel) this.tblSV.getModel();
+        String maSV = dtm.getValueAt(viTri, 0).toString();
+        String hoten = dtm.getValueAt(viTri, 1).toString();
+        int gioiTinh = (int) dtm.getValueAt(viTri, 2);
+        String queQuan = dtm.getValueAt(viTri, 3).toString();
+        String chuyenNganh = dtm.getValueAt(viTri, 4).toString();
+
+        this.txtHoTen.setText(hoten);
+        this.txtMaSV.setText(maSV);
+        this.txtQueQuan.setText(queQuan);
+        this.cbbChuyenNganh.setSelectedItem(chuyenNganh);
+        
+        if (gioiTinh == 0) {
+            this.radioGtNu.setSelected(true);
+        } else {
+            this.radioGtNam.setSelected(true);
+        }
+    }//GEN-LAST:event_tblSVMouseClicked
+
+    private void btnXoaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnXoaActionPerformed
+        int viTri = this.tblSV.getSelectedRow();
+        if (viTri == -1) {
+            JOptionPane.showMessageDialog(this, "Chọn 1 dòng trên JTable", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return ;
+        }
+        
+        int xacNhan = JOptionPane.showConfirmDialog(this, "Bạn muốn xóa bản ghi này?",
+            "Xác nhận", JOptionPane.YES_NO_OPTION);
+        
+        if (xacNhan == 1) {
+            // Người dùng chọn No
+            return ;
+        }
+
+        // Xóa bản ghi trong ArrayList
+        this.qlsv.xoa(viTri);
+        
+        // Hiển thị lại JTable
+        this.hienThiJTable();
+        
+        // Xóa thông tin trên form
+        this.uiMacDinh();
+    }//GEN-LAST:event_btnXoaActionPerformed
+
+    private SinhVien docForm() {
+        String hoTen = this.txtHoTen.getText();
+        String maSV = this.txtMaSV.getText();
+        String queQuan = this.txtQueQuan.getText();
+        String chuyenNganh = this.cbbChuyenNganh.getSelectedItem().toString();
+        
+        boolean gioiTinhNam = this.radioGtNam.isSelected();
+        int gioiTinh = (gioiTinhNam == true) ? 1 : 0 ;
+        
+        // Kiểm tra form
+        if (
+            hoTen.length() == 0 ||
+            maSV.length() == 0 ||
+            queQuan.length() == 0 ||
+            chuyenNganh.length() == 0
+        ) {
+            JOptionPane.showMessageDialog(this, "Không được để trống", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            
+            return null;
+        }
+        
+        SinhVien sv = new SinhVien(maSV, chuyenNganh, hoTen, gioiTinh, queQuan);
+        
+        return sv;
+    }
+    
     private void hienThiJTable()
     {
         DefaultTableModel dtm = (DefaultTableModel) this.tblSV.getModel();
